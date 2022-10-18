@@ -130,3 +130,6 @@ dmypy.json
 
 # Ignore the lightning logs, if generated
 lightning_logs/
+
+# Ignore downloaded checkpoints (files are too large)
+checkpoints/
