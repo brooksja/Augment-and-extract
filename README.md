@@ -8,9 +8,11 @@ Scripts to augment (initially) histopathology tiles and then extract features.
 
 3. Download relevant model weights (see below)
 
-4. run the following command:
+4. Navigate to the Augment-and-Extract folder
 
-		python /PATH/TO/augment-and-extract/src/main.py \
+5. Run the following command:
+
+		python -m src.main \
 		extractor \
 		/PATH/TO/CHECKPOINT \
 		/PATH/TO/DATA \
