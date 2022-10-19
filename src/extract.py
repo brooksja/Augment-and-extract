@@ -70,28 +70,28 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
             print(f'No tiles in {tile_path}.  Skipping...')
             continue
 
-        # build dataset from normal and augmented repetitions
-        norm_data = TileDataset(tile_path,normal_transform)
-        aug_data = TileDataset(tile_path,augmentation_transforms,repetitions)
-        data = ConcatDataset([norm_data,aug_data])
-
-        # create dataloader, num_workers set to half od cpu max to allow PC sharing
-        dl = DataLoader(data,batch_size=64,shuffle=False,num_workers=int(os.cpu_count()/2),drop_last=False)
-
         extractor = extractor.eval()
 
-        feats = []
-        # extract features
-        for batch in tqdm(dl,leave=False):
-            feats.append(extractor(batch.type_as(next(extractor.parameters()))).cpu().detach())
+        for i in range(repetitions+1):
+            if i == 0:
+                data = TileDataset(tile_path,normal_transform)
+                aug=False
+            else:
+                data = TileDataset(tile_path,augmentation_transforms)
+                aug=True
+                h5outpath = outdir/f'{tile_path.name}_aug_{i}.h5'
+            dl = DataLoader(data,batch_size=64,shuffle=False,num_workers=int(os.cpu_count()/2),drop_last=False)
 
-        # write tile coords, features, etc to h5 file
-        with h5py.File(h5outpath,'w') as f:
-            f['coords'] = [get_coords(fn) for fn in norm_data.tiles]+[get_coords(fn) for fn in aug_data.tiles]
-            f['feats'] = torch.concat(feats).cpu().numpy()
-            norm_len = int(len(data)/(repetitions+1))
-            aug_len = len(data)-norm_len
-            f['augmented'] = np.repeat([False,True],[norm_len,aug_len])
-            assert len(f['feats']) == len(f['augmented'])
-            f.attrs['extractor'] = extractor.name
+            feats = []
+            # extract features
+            for batch in tqdm(dl,leave=False):
+                feats.append(extractor(batch.type_as(next(extractor.parameters()))).cpu().detach())
+
+            # write tile coords, features, etc to h5 file
+            with h5py.File(h5outpath,'w') as f:
+                f['coords'] = [get_coords(fn) for fn in data.tiles]
+                f['feats'] = torch.concat(feats).cpu().numpy()
+                f['augmented'] = np.repeat(aug,len(data))
+                assert len(f['feats']) == len(f['augmented'])
+                f.attrs['extractor'] = extractor.name
     print('Augmentation and extraction complete')
