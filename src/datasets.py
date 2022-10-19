@@ -6,10 +6,11 @@ from PIL import Image
 
 # dataset for tiles
 class TileDataset(Dataset):
-    def __init__(self,tile_dir,transform=None):
+    def __init__(self,tile_dir,transform=None,repetitions:int=1):
         self.tiles = list(tile_dir.glob('*.jpg'))
         if not self.tiles:
             raise NoTilesError(tile_dir)
+        self.tiles *= repetitions
         self.transform = transform
 
     def __len__(self):

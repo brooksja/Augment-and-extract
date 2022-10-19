@@ -57,8 +57,9 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
     with open(outdir/'info.json','w') as f:
         json.dump({'extractor':extractor.name,
                     'augmentation':str(augmentation_transforms),
-                    'repetitions':repetitions})
-
+                    'repetitions':repetitions},
+                    f)
+    
     for tile_path in tqdm(tile_paths):
         tile_path = Path(tile_path)
         # check if h5 for slide already exists / slide_tile_path path contains tiles
@@ -70,10 +71,9 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
             continue
 
         # build dataset from normal and augmented repetitions
-        data = TileDataset(tile_path,normal_transform)
-        for _ in range(repetitions):
-            aug_data = TileDataset(tile_path,augmentation_transforms)
-            data = ConcatDataset([data,aug_data])
+        norm_data = TileDataset(tile_path,normal_transform)
+        aug_data = TileDataset(tile_path,augmentation_transforms,repetitions)
+        data = ConcatDataset([norm_data,aug_data])
 
         # create dataloader, num_workers set to half od cpu max to allow PC sharing
         dl = DataLoader(data,batch_size=64,shuffle=False,num_workers=int(os.cpu_count()/2),drop_last=False)
@@ -87,7 +87,7 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
 
         # write tile coords, features, etc to h5 file
         with h5py.File(h5outpath,'w') as f:
-            f['coords'] = [get_coords(fn) for fn in data.tiles]
+            f['coords'] = [get_coords(fn) for fn in norm_data.tiles]+[get_coords(fn) for fn in aug_data.tiles]
             f['feats'] = torch.concat(feats).cpu().numpy()
             norm_len = int(len(data)/(repetitions+1))
             aug_len = len(data)-norm_len
