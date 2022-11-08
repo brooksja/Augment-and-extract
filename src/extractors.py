@@ -29,9 +29,24 @@ def load_ozanciga(checkpoint_path):
             from <https://github.com/ozanciga/self-supervised-histopathology/releases/tag/tenpercent>.
     """
     model = models.resnet18(pretrained=False)
-    weights = torch.load(checkpoint_path)
-    model.fc = nn.Identity()
-    model.load_state_dict(weights,strict=True)
+    state = torch.load(checkpoint_path)
+    state_dict = state['state_dict']
+    for key in list(state_dict.keys()):
+        state_dict[key.replace('model.', '').replace('resnet.', '')] = state_dict.pop(key)
+
+    model = load_model_weights(model, state_dict)
+
     model.name = 'ozanciga'
+
+    return model
+    
+def load_model_weights(model, weights):
+
+    model_dict = model.state_dict()
+    weights = {k: v for k, v in weights.items() if k in model_dict}
+    if weights == {}:
+        print('No weight could be loaded..')
+    model_dict.update(weights)
+    model.load_state_dict(model_dict)
 
     return model
