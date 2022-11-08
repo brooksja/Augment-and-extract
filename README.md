@@ -26,7 +26,7 @@ Scripts to augment (initially) histopathology tiles and then extract features.
 ## Weights
 xiyue: https://drive.google.com/drive/folders/1AhstAFVqtTqxeS9WlBpU41BV08LYFUnL
 
-ozanciga: https://github.com/ozanciga/self-supervised-histopathology/releases/tag/tenpercent
+ozanciga: https://github.com/ozanciga/self-supervised-histopathology/releases/tag/nativetenpercent
 
 ## Acknowledgments
 Feature extractors based on marugoto by Kather AI (https://github.com/KatherLab/marugoto)
