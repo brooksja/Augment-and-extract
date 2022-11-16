@@ -88,7 +88,9 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
             for batch in tqdm(dl,leave=False):
                 img,extras = batch
                 new_feats = extractor(img.type_as(next(extractor.parameters()))).cpu().detach()
-                extras = torch.transpose(torch.stack(extras).squeeze(),0,1)
+                extras = torch.t(torch.stack(extras).squeeze())
+                if extras.dim() == 1:
+                    extras = torch.unsqueeze(extras,0)
                 new_feats = torch.concat((new_feats,extras),dim=1)
                 feats = torch.concat((feats,new_feats),dim=0)
 

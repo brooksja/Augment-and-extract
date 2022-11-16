@@ -46,8 +46,6 @@ class NoTilesError(Exception):
         print('No tiles found in {}'.format(tile_dir))
 
 def tokenise(df):
-#    if not (isinstance(df,pd.Series) or isinstance(df,pd.DataFrame)):
-#        df = pd.Series(df)
     df = df.replace(['--',''],[np.nan,np.nan])
     df = df.replace(' ','_')
 
