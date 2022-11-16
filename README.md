@@ -17,11 +17,14 @@ Scripts to augment (initially) histopathology tiles and then extract features.
 		/PATH/TO/CHECKPOINT \
 		/PATH/TO/DATA \
 		/PATH/FOR/OUTPUT \
-		--repetitions INT
+		--repetitions INT \
+		--extra_info
      
 	extractor can be 'xiyue' or 'ozanciga', default is xiyue
   
-	--repetitions is optional and defaults to 1
+	--repetitions is optional and defaults to 0
+	
+	-x is an optional flag to specify adding additional data from the clini table to the features. If specified, the user will then be asked to provide a clini table, a slide table and the column names to be looked at
   
 ## Weights
 xiyue: https://drive.google.com/drive/folders/1AhstAFVqtTqxeS9WlBpU41BV08LYFUnL

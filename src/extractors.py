@@ -28,7 +28,7 @@ def load_ozanciga(checkpoint_path):
         checkpoint_path:  Path to the model checkpoint file.  Can be downloaded
             from <https://github.com/ozanciga/self-supervised-histopathology/releases/tag/tenpercent>.
     """
-    model = models.resnet18(pretrained=False)
+    model = models.__dict__['resnet18'](pretrained=False)
     state = torch.load(checkpoint_path)
     state_dict = state['state_dict']
     for key in list(state_dict.keys()):

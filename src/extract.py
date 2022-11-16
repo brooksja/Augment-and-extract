@@ -11,6 +11,7 @@ from tqdm import tqdm
 import numpy as np
 import json
 
+
 from src.datasets import TileDataset
 
 ########## Code ##########
@@ -24,7 +25,7 @@ def get_coords(filename):
     else:
         return None
 
-def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentation_transforms=None,repetitions:Optional[int]=1):
+def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentation_transforms=None,repetitions:Optional[int]=1,tables = {}):
 
     # define default transforms to use
     default_augmentation = T.Compose([
@@ -66,7 +67,7 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
         if (h5outpath := outdir/f'{tile_path.name}.h5').exists():
             print(f'{h5outpath} already exists.  Skipping...')
             continue
-        if not next(tile_path.glob('*.jpg'), False):
+        if not next(tile_path.glob('**/*.jpg'), False):
             print(f'No tiles in {tile_path}.  Skipping...')
             continue
 
@@ -74,24 +75,30 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
 
         for i in range(repetitions+1):
             if i == 0:
-                data = TileDataset(tile_path,normal_transform)
+                data = TileDataset(tile_path,normal_transform,1,tables)
                 aug=False
             else:
-                data = TileDataset(tile_path,augmentation_transforms)
+                data = TileDataset(tile_path,augmentation_transforms,1,tables)
                 aug=True
                 h5outpath = outdir/f'{tile_path.name}_aug_{i}.h5'
             dl = DataLoader(data,batch_size=64,shuffle=False,num_workers=int(os.cpu_count()/2),drop_last=False)
 
-            feats = []
+            feats = torch.tensor([])
             # extract features
             for batch in tqdm(dl,leave=False):
-                feats.append(extractor(batch.type_as(next(extractor.parameters()))).cpu().detach())
+                img,extras = batch
+                new_feats = extractor(img.type_as(next(extractor.parameters()))).cpu().detach()
+                extras = torch.transpose(torch.stack(extras).squeeze(),0,1)
+                new_feats = torch.concat((new_feats,extras),dim=1)
+                feats = torch.concat((feats,new_feats),dim=0)
 
             # write tile coords, features, etc to h5 file
             with h5py.File(h5outpath,'w') as f:
                 f['coords'] = [get_coords(fn) for fn in data.tiles]
-                f['feats'] = torch.concat(feats).cpu().numpy()
+                f['feats'] = feats.cpu().numpy()
                 f['augmented'] = np.repeat(aug,len(data))
                 assert len(f['feats']) == len(f['augmented'])
                 f.attrs['extractor'] = extractor.name
     print('Augmentation and extraction complete')
+
+
