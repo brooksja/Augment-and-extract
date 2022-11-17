@@ -63,7 +63,6 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
     
     for tile_path in tqdm(tile_paths):
         tile_path = Path(tile_path)
-        fname = 
         # check if h5 for slide already exists / slide_tile_path path contains tiles
         if (h5outpath := outdir/f'{tile_path.name}.h5').exists():
             print(f'{h5outpath} already exists.  Skipping...')
