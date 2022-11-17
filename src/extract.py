@@ -63,6 +63,7 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
     
     for tile_path in tqdm(tile_paths):
         tile_path = Path(tile_path)
+        fname = 
         # check if h5 for slide already exists / slide_tile_path path contains tiles
         if (h5outpath := outdir/f'{tile_path.name}.h5').exists():
             print(f'{h5outpath} already exists.  Skipping...')
@@ -88,10 +89,11 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
             for batch in tqdm(dl,leave=False):
                 img,extras = batch
                 new_feats = extractor(img.type_as(next(extractor.parameters()))).cpu().detach()
-                extras = torch.t(torch.stack(extras).squeeze())
-                if extras.dim() == 1:
-                    extras = torch.unsqueeze(extras,0)
-                new_feats = torch.concat((new_feats,extras),dim=1)
+                if tables:
+                    extras = torch.t(torch.stack(extras).squeeze())
+                    if extras.dim() == 1:
+                        extras = torch.unsqueeze(extras,0)
+                    new_feats = torch.concat((new_feats,extras),dim=1)
                 feats = torch.concat((feats,new_feats),dim=0)
 
             # write tile coords, features, etc to h5 file

@@ -35,8 +35,15 @@ match args.extractor:
     case _:
         print('Error with extractor choice')
 
-tile_paths = os.listdir(args.datadir)
-tile_paths = [os.path.join(args.datadir,p) for p in tile_paths if os.path.isdir(os.path.join(args.datadir,p))]
+tile_paths = []
+for root,dirs,_ in os.walk(args.datadir):
+    for d in dirs:
+        contents = [x for x in os.listdir(os.path.join(root,d)) if not x.startswith('.')]
+        if len(contents) > 1:
+            tile_paths.append(os.path.join(root,d))
+#tile_paths = os.listdir(args.datadir)
+#tile_paths = [os.path.join(args.datadir,p) for p in tile_paths if os.path.isdir(os.path.join(args.datadir,p))]
+# = [Path(p.parent) for p in args.datadir.rglob('*') if p.is_file()]
 
 tables = {}
 if args.extra_info:

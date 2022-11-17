@@ -18,6 +18,7 @@ class TileDataset(Dataset):
             raise NoTilesError(tile_dir)
         self.tiles *= repetitions
         self.transform = transform
+        self.columns = []
         if tables:
             clini = pd.read_excel(tables['clini']) if os.path.splitext(tables['clini'])[1]=='.xlsx' else pd.read_csv(tables['clini'])
             slide = pd.read_csv(tables['slide'])
