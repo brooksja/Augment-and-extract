@@ -34,8 +34,8 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
         T.RandomHorizontalFlip(p=.5),
         T.RandomVerticalFlip(p=.5),
         T.RandomApply([T.GaussianBlur(3)], p=.5),
-        T.RandomApply([T.ColorJitter(
-            brightness=.1, contrast=.2, saturation=.25, hue=.125)], p=.5),
+        T.ColorJitter(
+            brightness=.1, contrast=.2, saturation=.25, hue=.25),
         T.ToTensor(),
         T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
