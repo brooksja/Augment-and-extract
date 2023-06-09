@@ -1,7 +1,6 @@
 ########## Packages ##########
 from torch.utils.data import Dataset
 from PIL import Image
-import pandas as pd
 import os
 import torch
 import numpy as np
