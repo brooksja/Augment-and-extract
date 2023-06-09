@@ -18,7 +18,6 @@ def get_args():
     parser.add_argument('datadir',type=Path,help='Specify path to images to be augmented')
     parser.add_argument('outdir',type=Path,help='Specify path for output')
     parser.add_argument('-r','--repetitions',type=int,default=0,help='Specify number of augmentation repetitions to do, default 0')
-    parser.add_argument('-x','--extra_info',action='store_true',help='Use this to add additional information to produced feature vectors, additional inputs will be requested')
 
     args = parser.parse_args()
     return args
@@ -45,17 +44,9 @@ for root,dirs,_ in os.walk(args.datadir):
 #tile_paths = [os.path.join(args.datadir,p) for p in tile_paths if os.path.isdir(os.path.join(args.datadir,p))]
 # = [Path(p.parent) for p in args.datadir.rglob('*') if p.is_file()]
 
-tables = {}
-if args.extra_info:
-    tables['clini'] = input('Enter path to clini table: ')
-    tables['slide'] = input('Enter path to slide table: ')
-    tables['columns'] = input('Enter names of features to include as comma separated list: ')
-
-
 extract_features(extractor=extractor,
                     tile_paths=tile_paths,
                     outdir=args.outdir,
                     augmentation_transforms=None, # TODO: make this an option in the argparser
                     repetitions=args.repetitions,
-                    tables = tables
                 )
