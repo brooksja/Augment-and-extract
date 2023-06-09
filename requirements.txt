@@ -9,6 +9,7 @@ nvidia-cuda-runtime-cu11==11.7.99
 nvidia-cudnn-cu11==8.5.0.96
 pathlib==1.0.1
 Pillow==9.2.0
+pandas
 requests==2.28.1
 torch==1.13.0
 torchvision==0.14.0
