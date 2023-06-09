@@ -25,7 +25,7 @@ def get_coords(filename):
     else:
         return None
 
-def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentation_transforms=None,repetitions:Optional[int]=1,tables = {}):
+def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentation_transforms=None,repetitions:Optional[int]=1):
 
     # define default transforms to use
     default_augmentation = T.Compose([
@@ -75,10 +75,10 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
 
         for i in range(repetitions+1):
             if i == 0:
-                data = TileDataset(tile_path,normal_transform,1,tables)
+                data = TileDataset(tile_path,normal_transform,1)
                 aug=False
             else:
-                data = TileDataset(tile_path,augmentation_transforms,1,tables)
+                data = TileDataset(tile_path,augmentation_transforms,1)
                 aug=True
                 h5outpath = outdir/f'{tile_path.name}_aug_{i}.h5'
             dl = DataLoader(data,batch_size=64,shuffle=False,num_workers=int(os.cpu_count()/2),drop_last=False)
@@ -88,11 +88,7 @@ def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentatio
             for batch in tqdm(dl,leave=False):
                 img,extras = batch
                 new_feats = extractor(img.type_as(next(extractor.parameters()))).cpu().detach()
-                if tables:
-                    extras = torch.t(torch.stack(extras).squeeze())
-                    if extras.dim() == 1:
-                        extras = torch.unsqueeze(extras,0)
-                    new_feats = torch.concat((new_feats,extras),dim=1)
+                
                 feats = torch.concat((feats,new_feats),dim=0)
 
             # write tile coords, features, etc to h5 file
