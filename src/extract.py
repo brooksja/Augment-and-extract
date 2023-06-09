@@ -18,12 +18,12 @@ from src.datasets import TileDataset
 
 # function to extract coordinates from a filename
 def get_coords(filename):
-    if matches := re.match(r'.*\((\d+),(\d+)\)\.jpg', str(filename)):
+    if matches := re.match(r'.*x=(\d+),y=(\d+).*\.jpg', str(filename)):
         coords = tuple(map(int, matches.groups()))
         assert len(coords) == 2, 'Error extracting coordinates'
         return np.array(coords)
     else:
-        return None
+        return np.array([-1,-1],dtype=int)
 
 def extract_features(extractor,tile_paths:Sequence[Path],outdir:Path,augmentation_transforms=None,repetitions:Optional[int]=1):
 
