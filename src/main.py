@@ -30,7 +30,7 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 match args.extractor:
     case 'xiyue':
         url = 'https://drive.google.com/drive/folders/1AhstAFVqtTqxeS9WlBpU41BV08LYFUnL'
-        gdown.download_folder(url=url,quiet=True)
+        gdown.download_folder(url=url)#,quiet=True)
         extractor = extrs.load_xiyue('best_ckpt.pth').to(device)
     case 'ozanciga':
         url = 'https://github.com/ozanciga/self-supervised-histopathology/releases/download/tenpercent/tenpercent_resnet18.ckpt'
